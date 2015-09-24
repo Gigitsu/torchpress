@@ -26,7 +26,7 @@ $ sudo pacman -S graphviz
 **NB:** please use the [offical graphviz installer](http://www.graphviz.org/Download_macos.php) instead of `brew` otherwise you cannot be able to use it with `nngraph`.
 
 ##Basic Concepts
-Let's briefly recap some `nn` [Torch](https://github.com/torch/torch7/blob/master/README.md) basic concepts. There are two fondamental pieces to build neural networks (from now on simply called `nn`): [modules](blogs/deep_learning_with_torch_step_1_nn_module.md) and [containers](blogs/deep_learning_with_torch_step_2_nn_containers.md).
+Let's briefly recap some `nn` [Torch](https://github.com/torch/torch7/blob/master/README.md) basic concepts. There are two fondamental pieces to build neural networks (from now on simply called `nn`): [modules](deep_learning_with_torch_step_1_nn_module.md) and [containers](deep_learning_with_torch_step_2_nn_containers.md).
 The first is an abstraction of an `nn` layer and as such, it can peform either forward pass, taking an input and transforming it somehow to generate an output, and backward pass, that performs a backpropagation step.
 The latter is used to combine in some way other `modules` to build complex `nn`. Actually a container is a `module` so, like any other `modules`, it can perfom fowrad an backward steps but unlike `simple modules` its behavior is mainly defined by the `modules` of which it is composed.
 
@@ -73,7 +73,8 @@ graph.dot(mlp.fg, 'MLP')
 -- or save graph to file MLP.svg and MLP.dot
 graph.dot(mlp.fg, 'MLP', 'MLP')
 ```
-![MLP](blogs/images/MLP.png)
+![MLP](images/MLP.png)
+
 Read this diagram from top to bottom, with the first and last nodes being *dummy* nodes that regroup all inputs and outputs of the graph. 
 The `module` entry describes the function of the node, as applies to `input`, and producing a result of the shape `gradOutput`; `mapindex` contains pointers to the parent nodes.
 
@@ -98,4 +99,4 @@ gmod:updateGradInput({x1, x2}, {torch.rand(1), torch.rand(1)})
 graph.dot(gmod.fg, 'Big MLP')
 ```
 
-![BigMLP](blogs/images/MLP2.png)
+![BigMLP](images/MLP2.png)
