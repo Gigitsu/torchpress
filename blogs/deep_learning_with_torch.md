@@ -1,7 +1,7 @@
 Deep Learning with Torch: Aproaches
 ==========================
 
-Now it is a month that I'm playing with Torch and Lua to define Deep Learning algorithms and I want to share my fealing and suggestions on it.
+Now it is a month that I'm playing with Torch and Lua to define Deep Learning algorithms and I want to share my feelings and suggestions on it.
 
 ### Introduction
 
