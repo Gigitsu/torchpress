@@ -26,13 +26,15 @@ $ sudo pacman -S graphviz
 **NB:** please use the [offical graphviz installer](http://www.graphviz.org/Download_macos.php) instead of `brew` otherwise you cannot be able to use it with `nngraph`.
 
 ##Basic Concepts
-Let's briefly recap some `nn` [Torch](https://github.com/torch/torch7/blob/master/README.md) basic concepts. There are two fondamental pieces to build neural networks (from now on simply called `nn`): [modules](deep_learning_with_torch_step_1_nn_module.md) and [containers](deep_learning_with_torch_step_2_nn_containers.md).
-The first is an abstraction of an `nn` layer and as such, it can peform either forward pass, taking an input and transforming it somehow to generate an output, and backward pass, that performs a backpropagation step.
-The latter is used to combine in some way other `modules` to build complex `nn`. Actually a container is a `module` so, like any other `modules`, it can perfom fowrad an backward steps but unlike `simple modules` its behavior is mainly defined by the `modules` of which it is composed.
+Let's briefly recap some `nn` [Torch](https://github.com/torch/torch7/blob/master/README.md) basic concepts. There are two fondamental pieces to build neural networks (from now on simply called `nn`): [modules](deep_learning_with_torch_step_1_nn_module.md) and [containers](deep_learning_with_torch_step_2_nn_containers.md):
 
-Every network is a graph, and `nn` are too. The `nngraph` library provide a way to build any conplex network focusing on the network graph and avoiding the use of `containers`.
+- The first is an abstraction of an `nn` layer. It can peform either forward pass (taking an input and generates an output), and backward pass that performs a backpropagation step. 
+- The latter is used to combine in some way other `modules` to build complex `nn`.
+ 
+ 
+## NNGraph
 
-Any given `module` can be wrapped in a node.
+Any `Module` can be wrapped in a `nngraph.Node`.
 
 ```lua
 th> nn.Identity() -- this create an identity module
@@ -41,13 +43,8 @@ nn.Identity
 th> nn.Identity()() -- this create an identity module and wraps it in a node
 nngraph.Node
 ```
-
-The `nngraph` overloads the `__call__` operator (i.e. the () operator used for function calls) on all `nn.Module` objects.
-When the `__call__` operator is invoked, it returns a node wrapping the `nn.Module`.
-The call operator takes the parents of the node as arguments, which specify which modules will feed into this one during a forward pass.
-
-##Examples
-Let's see a simple example.
+The `nngraph` library provide a way to build any conplex network focusing on the network graph and avoiding the use of `containers`.
+`nngraph` overloads the `__call__` operator (i.e. the () operator used for function calls) on all `nn.Module` objects. By executing the `__call__` operator it is returned a node wrapping a `nn.Module`.
 
 ```lua
 h1 = nn.Linear(20, 10)()
@@ -55,17 +52,24 @@ h2 = nn.Linear(10, 1)(h1)
 mlp = nn.gModule({h1},{h2})
 ```
 
-This is a multi layer perceptron with 2 hidden layers, the first layer `h1` takes an input of size 20 and make an output of sie 10.
-The second layer gets an input of size 10 and an output of size 1.
-Furthermore we pass `h1` to the `__call__` operetor of `h2`, this means that there is an edge the goes out from `h1` and enters into `h2`.
-In other words the output of `h1` is the input of `h2` (`h1` will feed `h2`).
-As you can se `h1` has no in edge.
 
-Finally we make `mlp` that is an `nn.gModule` that extends `nn.module`. That is, it can do everything a `module` can do, for example forward and backward passes.
+The call operator takes the parents of the node as arguments, which specify which modules will feed into this one during a forward pass.
 
-`nn.gModule` takes 2 input, the first is a `table` of `nodes` that are the inputs of the `nn` and the second is a `table` of outpus `nodes`.
+##Examples
 
-If you have installed `graphviz`, you can display the graph that you have created.
+### Example 1
+
+```lua
+h1 = nn.Linear(20, 10)()
+h2 = nn.Linear(10, 1)(h1)
+model = nn.gModule({h1},{h2})
+```
+
+This image above describes a multi layer perceptron with 2 hidden layers. The first layer `h1`  is a Linear transformation from 20 to 10. The second layer gets an input of size 10 and an output of size 1 and takes as input the layer `h1`. This means that there is an edge the goes out from `h1` and enters into `h2`.
+
+Finally we make `model` calling `nn.gModule` with `h1` and `h2` as parameters. `nn.gModule` takes 2 input: a `table` of `nodes` that are the inputs of the `nn` and  a `table` of outpus `nodes`.
+
+Using `graphviz` we can plot the neural network in in the example above.
 
 ```lua
 -- draw graph (the forward graph, '.fg'), use it with itorch notebook
@@ -75,12 +79,14 @@ graph.dot(mlp.fg, 'MLP', 'MLP')
 ```
 ![MLP](images/MLP.png)
 
-Read this diagram from top to bottom, with the first and last nodes being *dummy* nodes that regroup all inputs and outputs of the graph. 
-The `module` entry describes the function of the node, as applies to `input`, and producing a result of the shape `gradOutput`; `mapindex` contains pointers to the parent nodes.
+The first and last nodes are *dummy nodes* and regroup all inputs and outputs of the graph. The `module` entry describes the function of the node, as applies to `input`, and producing a result of the shape `gradOutput`; `mapindex` contains pointers to the parent nodes.
+
+### Example 2
 
 This is a simple example but you can create arbitrarily complex networks with the same semplicity.
 
 As example we can create a `module` that takes 2 inputs and 2 outputs
+
 ```lua
 h1 = nn.Linear(20, 20)()
 h2 = nn.Linear(10, 10)()
