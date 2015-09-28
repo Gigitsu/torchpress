@@ -1,4 +1,4 @@
-The Long path to Deep Learning using Torch: part 1
+The Long way to Deep Learning with Torch: part 1
 ============
 **Abstract:** In this post we analyze the first step to build a Deep Neural Network using [torch](http://torch.ch/). In particular, we focus on [torch/nn module](torch/nn](https://github.com/torch/nn).
 
@@ -8,7 +8,7 @@ Module in [torch/nn](https://github.com/torch/nn) is an abstract class that incl
 
 Module has two state variable as describe in its `_init()` function.
 
-```
+```lua
 function Module:__init()
    self.gradInput = torch.Tensor()
    self.output = torch.Tensor()
@@ -66,7 +66,7 @@ print(module.gradBias)
 ### Identity
 Creates a module that returns whatever is input to it as output.
 
-```
+```lua
 module = nn.Identity()
 model = nn.Sequential()
 model:add(module)

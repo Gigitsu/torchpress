@@ -1,4 +1,4 @@
-The Long path to Deep Learning using Torch: part 6
+The Long path to Deep Learning using Torch: part 10
 ============
 **Abstract:** In this post we analyze [nngraph](https://github.com/torch/nngraph) library to easily build complex neural networks.
 
@@ -6,11 +6,13 @@ The [nngraph](https://github.com/torch/nngraph) library provide tools to create 
 
 ##Install
 You can install `nngraph` with
+
 ```
 $ luarocks install nngraph
 ```
 
 As an optional dependecy you can install `graphviz`, if you have it you will be able to display the graph that you have created. For installing the package run the appropriate command below:
+
 ```zsh
 # Mac users
 $ brew install graphviz
@@ -26,7 +28,7 @@ $ sudo pacman -S graphviz
 **NB:** please use the [offical graphviz installer](http://www.graphviz.org/Download_macos.php) instead of `brew` otherwise you cannot be able to use it with `nngraph`.
 
 ##Basic Concepts
-Let's briefly recap some `nn` [Torch](https://github.com/torch/torch7/blob/master/README.md) basic concepts. There are two fondamental pieces to build neural networks (from now on simply called `nn`): [modules](deep_learning_with_torch_step_1_nn_module.md) and [containers](deep_learning_with_torch_step_2_nn_containers.md):
+Let's briefly recap some `nn` [Torch](https://github.com/torch/torch7/blob/master/README.md) basic concepts. There are two fondamental pieces to build neural networks (from now on simply called `nn`) : [modules](deep_learning_with_torch_step_1_nn_module.md) and [containers](deep_learning_with_torch_step_2_nn_containers.md):
 
 - The first is an abstraction of an `nn` layer. It can peform either forward pass (taking an input and generates an output), and backward pass that performs a backpropagation step. 
 - The latter is used to combine in some way other `modules` to build complex `nn`.
@@ -72,10 +74,12 @@ Finally we make `model` calling `nn.gModule` with `h1` and `h2` as parameters. `
 Using `graphviz` we can plot the neural network in in the example above.
 
 ```lua
+require 'nngraph'
+
 -- draw graph (the forward graph, '.fg'), use it with itorch notebook
-graph.dot(mlp.fg, 'MLP')
+graph.dot(model.fg, 'MLP')
 -- or save graph to file MLP.svg and MLP.dot
-graph.dot(mlp.fg, 'MLP', 'MLP')
+graph.dot(model.fg, 'MLP', 'MLP')
 ```
 ![MLP](images/MLP.png)
 
@@ -88,6 +92,8 @@ This is a simple example but you can create arbitrarily complex networks with th
 As example we can create a `module` that takes 2 inputs and 2 outputs
 
 ```lua
+require 'nngraph'
+
 h1 = nn.Linear(20, 20)()
 h2 = nn.Linear(10, 10)()
 hh1 = nn.Linear(20, 1)(nn.Tanh()(h1))

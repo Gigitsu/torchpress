@@ -14,17 +14,19 @@ rnn = nn.AbstractRecurrent(rho)
 ```
 This class takes as parameter `rho` which is the maximum number of steps to backpropagate through time (BPTT). The default value for `rho` is 9999 and means that the effect of the network is backpropagated through the entire sequence whatever its length.
 >
->Lower values of rho are useful when you have long sequences and you want to propagate at least rho steps.
+>Lower values of rho are useful when you have long sequences and you want to propagate only at least rho steps.
 
-The step is incremented each time a forward is called. After the step number is compared to `rho` for forgetting.
+The step is incremented each time a forward is called. After the current step number is equal to `rho` it is called the forget function.
 
 ## RNN
 
-`nn.Recurrent(start, input, feedback, [transfer, rho, merge])` takes 5 arguments:
+`nn.Recurrent(start, input, feedback, [transfer, rho, merge])` takes 3 mandatory arguments:
 
 - start: the size of the output, or a Module that will be inserted between the input and the transfer.
 - input: a module that processes the input tensor
 - rho: is the maximum amount of backprogragation.
+
+the transfer function and the merge function can be passed optionally.
 
 A **forward** keeps a log of intermediate steps and increase the step of 1. Back propagation through time is performed when `updateParameters` or `backwardThroughTime` method is called.  Note that the longer the sequence, the more memory will be required to store all the output and gradInput states (one for each time step).
 
@@ -33,7 +35,12 @@ A **forward** keeps a log of intermediate steps and increase the step of 1. Back
 **Example**
 
 ```
+model = nn.Sequential()
+model:add(rnn)
+model:add(nn.Linear(hiddenSize, nIndex))
+model:add(nn.LogSoftMax())
 
+criterion = nn.Criterion(nn.ClassNLLCriterion())
 
 ```
 
@@ -43,9 +50,9 @@ It allows to present an entire sequence in a single call. Forward, backward and 
 
 ### Sequence Effect
 
-A sequencer is a kind of *Decorator* used to abstract away the complexity of `AbstractRecurrent` modules. 
+A sequencer is a kind of *Decorator* used to abstract away the complexity of `AbstractRecurrent` modules.
 
-- the Sequencer forwards an input sequence (a table) into an output sequence (a table of the same length). 
+- the Sequencer forwards an input sequence (a table) into an output sequence (a table of the same length).
 - It also takes care of calling forget, backwardThroughTime and other such AbstractRecurrent-specific methods.
 
 For example the following two examples are equivalent:
@@ -176,7 +183,7 @@ h[t] = o[t]tanh(c[t])                                                (6)
 For formulas detail please check the [official doc](https://github.com/Element-Research/rnn#rnn.LSTM).
 
 ### Example
-let us build the same example as before with a LSTM.
+Let us build the same example as before with a LSTM.
 
 ```
 require 'rnn'
@@ -257,4 +264,4 @@ model:add(nn.Sequencer(nn.LogSoftMax()))
 criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
 ```
 
-It is composed by a LookupTable, a LSTM, a linear and a LogSoftMax to get the classification result.
+It is composed by a LookupTable, a LSTM, a linear and a LogSoftMax to get the classification result. In the [examples folder](./examples) there is also a simple LSTM for prediction and not classification.
