@@ -8,7 +8,7 @@ This package implements several optimization methods that can be used to train a
 
 In the previous posts we showed how to train a neural network using a for. The method `gradientUpgrade` peforms a learning step, which consists fo forward, backward and upgrade network weights.
 
-```
+```lua
 for i = 1, 10000 do
    local inputs, targets = {}, {}
    for step = 1, rho do
@@ -81,7 +81,7 @@ end
 
 We take the example [lstm with sequencer](./examples/lstm_sequencer.lua) and replace the `iteration for` and the `gradientUpdate` with a `feval` function. 
 
-```
+```lua
 require 'rnn'
 require 'optim'
 
@@ -103,7 +103,7 @@ Defines the model decorated with a `Sequencer`
 
 ------------
 
-```
+```lua
 -- create a Dummy Dataset, dummy dataset (task predict the next item)
 dataset = torch.randperm(nIndex)
 
@@ -143,7 +143,7 @@ Defines:
 
 ------------
 
-```
+```lua
 -- get weights and loss wrt weights from the model
 x, dl_dx = model:getParameters()
 
@@ -178,7 +178,7 @@ Get the parameters from the built model and defines the feval function for the o
 
 --------------
 
-```
+```lua
 sgd_params = {
    learningRate = 0.1,
    learningRateDecay = 1e-4,
