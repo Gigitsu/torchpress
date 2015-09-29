@@ -227,4 +227,4 @@ model:add(nn.Sequencer(nn.LogSoftMax()))
 criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
 ```
 
-It is composed by a LookupTable, a LSTM, a linear and a LogSoftMax to get the classification result. In the [examples folder](./examples) there is also a simple LSTM for prediction and not classification.
+It is composed by a LookupTable, a LSTM, a linear and a LogSoftMax to get the classification result. In the [examples folder](./examples) there is also a simple LSTM for regression and classification.

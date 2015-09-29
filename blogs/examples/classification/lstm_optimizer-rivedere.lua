@@ -1,25 +1,21 @@
 require 'rnn'
 require 'optim'
 
-batchSize = 10
+batchSize = 50
 rho = 5
 hiddenSize = 64
 nIndex = 10000
-nEval = 1000
-
-
 
 -- define the model
 model = nn.Sequential()
-model:add(nn.Sequencer(nn.LookupTable(nIndex, hiddenSize)))
-model:add(nn.Sequencer(nn.FastLSTM(hiddenSize, hiddenSize, rho)))
-model:add(nn.Sequencer(nn.Linear(hiddenSize, nIndex)))
-model:add(nn.Sequencer(nn.LogSoftMax()))
-criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
+model:add(nn.LookupTable(nIndex, hiddenSize))
+model:add(nn.FastLSTM(hiddenSize, hiddenSize, rho))
+model:add(nn.Linear(hiddenSize, nIndex))
+model:add(nn.LogSoftMax())
+criterion = nn.ClassNLLCriterion()
 
 -- create a Dummy Dataset, dummy dataset (task predict the next item)
 dataset = torch.randperm(nIndex)
-evalset = torch.multinomial(dataset, nEval, false)
 
 -- offset is a convenient pointer to iterate over the dataset
 offsets = {}
@@ -31,20 +27,17 @@ offsets = torch.LongTensor(offsets)
 
 -- method to compute a batch
 function nextBatch()
-	local inputs, targets = {}, {}
-   for step = 1, rho do
-      --get a batch of inputs
-      table.insert(inputs, dataset:index(1, offsets))
-      -- shift of one batch indexes
-      offsets:add(1)
-      for j=1,batchSize do
-         if offsets[j] > nIndex then
-            offsets[j] = 1
-         end
+   --get a batch of inputs
+   local inputs = dataset:index(1, offsets)
+   -- shift of one batch indexes
+   offsets:add(1)
+   for j=1,batchSize do
+      if offsets[j] > nIndex then
+         offsets[j] = 1
       end
-      -- fill the batch of targets
-      table.insert(targets, dataset:index(1, offsets))
    end
+   -- fill the batch of targets
+   local targets = dataset:index(1, offsets)
 	return inputs, targets
 end
 
@@ -76,19 +69,6 @@ feval = function(x_new)
 	return loss_x, dl_dx
 end
 
--- function to eval the model on a dataset
-validate = function(data)
-   local maxPosition = data:size()[1] - 1
-   local cumulatedError = 0
-   for i = 1, maxPosition do
-      local prediction = model:forward({data[i]})
-      local err = criterion:forward(prediction, data[i+1])
-      cumulatedError = cumulatedError + prediction
-   end
-   return cumulatedError / maxPosition
-end
-
-
 sgd_params = {
    learningRate = 0.1,
    learningRateDecay = 1e-4,
@@ -104,7 +84,5 @@ for i = 1,1e4 do
 	if sgd_params.evalCounter % 100 == 0 then
 		print('error for iteration ' .. sgd_params.evalCounter  .. ' is ' .. fs[1] / rho)
 		-- print(sgd_params)
-      --validationError = validate(evalset)
-      -- print('error on validation ' .. validationError)
 	end
 end

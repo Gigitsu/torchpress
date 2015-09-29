@@ -9,23 +9,16 @@ This package implements several optimization methods that can be used to train a
 In the previous posts we showed how to train a neural network using a for. The method `gradientUpgrade` peforms a learning step, which consists fo forward, backward and upgrade network weights.
 
 ```lua
-for i = 1, 10000 do
-   local inputs, targets = {}, {}
-   for step = 1, rho do
-      --get a batch of inputs
-      table.insert(inputs, dataset:index(1, offsets))
-      -- shift of one batch indexes
-      offsets:add(1)
-      for j=1,batchSize do
-         if offsets[j] > nIndex then
-            offsets[j] = 1
-         end
-      end
-      -- a batch of targets
-      table.insert(targets, dataset:index(1, offsets))
+function gradientUpgrade(model, x, y, criterion, learningRate, i)
+	local prediction = model:forward(x)
+	local err = criterion:forward(prediction, y)
+   if i % 100 == 0 then
+      print('error for iteration ' .. i  .. ' is ' .. err/rho)
    end
-
-   i = gradientUpgrade(model, inputs, targets, criterion, lr, i)
+	local gradOutputs = criterion:backward(prediction, y)
+	model:backward(x, gradOutputs)
+	model:updateParameters(learningRate)
+   model:zeroGradParameters()
 end
 ```
 
