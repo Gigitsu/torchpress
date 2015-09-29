@@ -22,7 +22,7 @@ Let us give some examples to understand how criterions can be used.
 
 ### Classification: The negative log likelihood criterion
 
-```
+```lua
 criterion = nn.ClassNLLCriterion([weights])
 ```
 It is used to train a classificator on `n` classes. It takes optionally a 1 dimension tensor of `weights` which is useful if you have an unbalanced training set. 
@@ -30,7 +30,7 @@ It is used to train a classificator on `n` classes. It takes optionally a 1 dime
 The `forward` must have as input a *log-prograbilities * of each class. Log-probabilities can be obtained by appending a `nn.LogSoftMax` as last layer of your container.
 The loss can be described as:
 
-```
+```lua
 loss(x, class) = -weights[class] * x[class]
 ```
 
@@ -49,12 +49,13 @@ end
 ```
 
 ### Regression: MSECriterion
-```
+
+```lua
 criterion = nn.MSECriterion()
 ```
 Creates a criterion that measures the mean squared error between n elements in the input x and output y:
 
-```
+```lua
 loss(x, y) = 1/n \sum |x_i - y_i|^2 
 
 ```
@@ -86,7 +87,7 @@ If x and y are d-dimensional Tensors with a total of n elements, the sum operati
 ## A Complete Example
 In the following example we train a neural network for a classification task. The function `gradientUpgrade` performs one gradient step (forward, backward with update parameter.
 
-```
+```lua
 require 'nn'
 
 function gradientUpgrade(model, x, y, criterion, learningRate)
@@ -119,6 +120,4 @@ print('prediction for x2 = ' .. model:forward(x2)[1] .. ' expected value ' .. y2
 
 print('loss after training for x1 = ' .. criterion:forward(model:forward(x1), y1))
 print('loss after training for x2 = ' .. criterion:forward(model:forward(x2), y2))
-
-
 ```

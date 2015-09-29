@@ -10,22 +10,10 @@ outputSize = 1
 seriesSize = 10000
 seriesEval = 1000
 
-
-function gradientUpgrade(model, x, y, criterion, learningRate, i)
-	local prediction = model:forward(x)
-	local err = criterion:forward(prediction, y)
-   if i % 100 == 0 then
-      print('error for iteration ' .. i  .. ' is ' .. err/rho)
-   end
-	local gradOutputs = criterion:backward(prediction, y)
-	model:backward(x, gradOutputs)
-	model:updateParameters(learningRate)
-   model:zeroGradParameters()
-end
-
 model = nn.Sequential()
-model:add(nn.Identity())
 model:add(nn.FastLSTM(inputSize, hiddenSize, rho))
+--model:add(nn.Linear(inputSize, hiddenSize))
+--model:add(nn.Tanh())
 model:add(nn.Linear(hiddenSize, outputSize))
 
 criterion = nn.MSECriterion()
@@ -54,7 +42,7 @@ function nextBatch()
 		end
 	end
 	-- a batch of targets
-	local targets = dataset[{{},1}]:index(1,offsets)
+	local targets = dataset[{{},{outputSize}}]:index(1,offsets)
 	return inputs, targets
 end
 
@@ -88,19 +76,15 @@ end
 
 --function for validation
 validate = function(data)
-	model:evaluate()
 	local maxPosition = data:size()[1] - 1
-	local maxSize = inputSize - 1
-
    local cumulatedError = 0
 	for i = 1, maxPosition do
-		   x = data[{{1,50}}] --[{{1,maxSize}}]
-			y = data[{{1,50},{maxSize}}]
+			local x = data[i]
+			local y = torch.DoubleTensor{data[i+1][4]}
 	      local prediction = model:forward(x)
 	      local err = criterion:forward(prediction, y)
 	      cumulatedError = cumulatedError + err
 	end
-	model:evaluate()
 	return cumulatedError / maxPosition
 end
 
@@ -118,7 +102,7 @@ for i = 1, 10e3 do
 
 	if sgd_params.evalCounter % 100 == 0 then
 		print('error for iteration ' .. sgd_params.evalCounter  .. ' is ' .. fs[1] / rho)
-		local validationError = validate(evalset)
-		print('error on validation ' .. validationError)
+		-- local validationError = validate(evalset)
+		-- print('error on validation ' .. validationError)
 	end
 end
