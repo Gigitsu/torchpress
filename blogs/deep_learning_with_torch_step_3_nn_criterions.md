@@ -1,4 +1,4 @@
-The Long path to Deep Learning using Torch: part 3
+The Long way of Deep Learning with Torch: part 3
 ============
 **Abstract:** In this post we analyze how to use Criterions to build complex neural networks.
 

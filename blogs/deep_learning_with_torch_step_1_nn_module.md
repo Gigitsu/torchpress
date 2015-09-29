@@ -1,4 +1,4 @@
-The Long way to Deep Learning with Torch: part 1
+The Long way of Deep Learning with Torch: part 1
 ============
 **Abstract:** In this post we analyze the first step to build a Deep Neural Network using [torch](http://torch.ch/). In particular, we focus on [torch/nn module](torch/nn](https://github.com/torch/nn).
 

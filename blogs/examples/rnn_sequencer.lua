@@ -1,18 +1,20 @@
 require 'rnn'
 
-batchSize = 10
+batchSize = 50
 rho = 5
-hiddenSize = 10
+hiddenSize = 64
 nIndex = 10000
 
 
 function gradientUpgrade(model, x, y, criterion, learningRate, i)
+	print(x)
+	print(y)
+	os.exit()
 	local prediction = model:forward(x)
 	local err = criterion:forward(prediction, y)
    if i % 100 == 0 then
       print('error for iteration ' .. i  .. ' is ' .. err/rho)
    end
-   i = i + 1
 	local gradOutputs = criterion:backward(prediction, y)
 	model:backward(x, gradOutputs)
 	model:updateParameters(learningRate)
@@ -47,9 +49,8 @@ for i= 1, batchSize do
 end
 offsets = torch.LongTensor(offsets)
 
-lr = 0.1
-i = 1
-for i = 1, 10000 do
+lr = 0.01
+for i = 1, 10e4 do
    local inputs, targets = {}, {}
    for step = 1, rho do
       --get a batch of inputs

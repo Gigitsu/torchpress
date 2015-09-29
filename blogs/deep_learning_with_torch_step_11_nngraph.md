@@ -1,4 +1,4 @@
-The Long path to Deep Learning using Torch: part 10
+The Long way of Deep Learning with Torch: part 11
 ============
 **Abstract:** In this post we analyze [nngraph](https://github.com/torch/nngraph) library to easily build complex neural networks.
 

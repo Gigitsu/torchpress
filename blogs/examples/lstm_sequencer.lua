@@ -12,7 +12,6 @@ function gradientUpgrade(model, x, y, criterion, learningRate, i)
    if i % 100 == 0 then
       print('error for iteration ' .. i  .. ' is ' .. err/rho)
    end
-   i = i + 1
 	local gradOutputs = criterion:backward(prediction, y)
 	model:backward(x, gradOutputs)
 	model:updateParameters(learningRate)
@@ -20,13 +19,10 @@ function gradientUpgrade(model, x, y, criterion, learningRate, i)
 end
 
 
---rnn layer
-rnn = nn.LSTM(hiddenSize, hiddenSize, rho)
-
 -- Model
 model = nn.Sequential()
 model:add(nn.Sequencer(nn.LookupTable(nIndex, hiddenSize)))
-model:add(nn.Sequencer(rnn))
+model:add(nn.Sequencer(nn.FastLSTM(hiddenSize, hiddenSize, rho)))
 model:add(nn.Sequencer(nn.Linear(hiddenSize, nIndex)))
 model:add(nn.Sequencer(nn.LogSoftMax()))
 
@@ -45,7 +41,6 @@ end
 offsets = torch.LongTensor(offsets)
 
 lr = 0.1
-i = 1
 for i = 1, 10000 do
    local inputs, targets = {}, {}
    for step = 1, rho do
@@ -62,5 +57,5 @@ for i = 1, 10000 do
       table.insert(targets, dataset:index(1, offsets))
    end
 
-   i = gradientUpgrade(model, inputs, targets, criterion, lr, i)
+   gradientUpgrade(model, inputs, targets, criterion, lr, i)
 end

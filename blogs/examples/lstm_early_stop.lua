@@ -1,10 +1,13 @@
 require 'rnn'
 require 'optim'
 
-batchSize = 50
+batchSize = 10
 rho = 5
 hiddenSize = 64
 nIndex = 10000
+nEval = 1000
+
+
 
 -- define the model
 model = nn.Sequential()
@@ -16,6 +19,7 @@ criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
 
 -- create a Dummy Dataset, dummy dataset (task predict the next item)
 dataset = torch.randperm(nIndex)
+evalset = torch.multinomial(dataset, nEval, false)
 
 -- offset is a convenient pointer to iterate over the dataset
 offsets = {}
@@ -72,6 +76,19 @@ feval = function(x_new)
 	return loss_x, dl_dx
 end
 
+-- function to eval the model on a dataset
+validate = function(data)
+   local maxPosition = data:size()[1] - 1
+   local cumulatedError = 0
+   for i = 1, maxPosition do
+      local prediction = model:forward({data[i]})
+      local err = criterion:forward(prediction, data[i+1])
+      cumulatedError = cumulatedError + prediction
+   end
+   return cumulatedError / maxPosition
+end
+
+
 sgd_params = {
    learningRate = 0.1,
    learningRateDecay = 1e-4,
@@ -87,5 +104,7 @@ for i = 1,1e4 do
 	if sgd_params.evalCounter % 100 == 0 then
 		print('error for iteration ' .. sgd_params.evalCounter  .. ' is ' .. fs[1] / rho)
 		-- print(sgd_params)
+      --validationError = validate(evalset)
+      -- print('error on validation ' .. validationError)
 	end
 end

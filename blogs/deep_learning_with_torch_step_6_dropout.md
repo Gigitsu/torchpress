@@ -1,4 +1,4 @@
-The Long way to Deep Learning with Torch: part 6
+The Long way of Deep Learning with Torch: part 6
 ============
 **Abstract:** In this post we analyze how to implement **Dropout**.
 

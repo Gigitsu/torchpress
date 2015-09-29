@@ -1,4 +1,4 @@
-The Long path to Deep Learning using Torch: part 2
+The Long way of Deep Learning with Torch: part 2
 ============
 **Abstract:** In this post we analyze how to build complex neural networks using the container classes.
 

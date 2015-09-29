@@ -25,16 +25,10 @@ function gradientUpgrade(model, x, y, criterion, learningRate, i)
    model:zeroGradParameters()
 end
 
--- Model
--- model = nn.Sequential()
--- model:add(nn.Sequencer(nn.Linear(inputSize, hiddenSize)))
--- model:add(nn.Sequencer(nn.LSTM(hiddenSize, hiddenSize, rho)))
--- model:add(nn.Sequencer(nn.Linear(hiddenSize, outputSize)))
-
-altModel = nn.Sequential()
-altModel:add(nn.Sequencer(nn.Identity()))
-altModel:add(nn.Sequencer(nn.LSTM(inputSize, hiddenSize, rho)))
-altModel:add(nn.Sequencer(nn.Linear(hiddenSize, outputSize)))
+model = nn.Sequential()
+model:add(nn.Sequencer(nn.Identity()))
+model:add(nn.Sequencer(nn.FastLSTM(inputSize, hiddenSize, rho)))
+model:add(nn.Sequencer(nn.Linear(hiddenSize, outputSize)))
 
 criterion = nn.SequencerCriterion(nn.MSECriterion())
 
@@ -66,5 +60,5 @@ for i = 1, 10000 do
       -- a batch of targets
       table.insert(targets, dataset[{{},1}]:index(1,offsets))
    end
-   i = gradientUpgrade(altModel, inputs, targets, criterion, lr, i)
+   i = gradientUpgrade(model, inputs, targets, criterion, lr, i)
 end

@@ -1,0 +1,3 @@
+The Long way of Deep Learning with Torch: part 10
+============
+**Abstract:** In this post we analyze how to plot the ...

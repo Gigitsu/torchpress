@@ -1,4 +1,4 @@
-The Long way to Deep Learning with Torch: part 7
+The Long way of Deep Learning with Torch: part 7
 ============
 **Abstract:** In this post we analyze how to use **optim** to train a neural network.
 
@@ -93,7 +93,7 @@ nIndex = 10000
 -- define the model
 model = nn.Sequential()
 model:add(nn.Sequencer(nn.LookupTable(nIndex, hiddenSize)))
-model:add(nn.Sequencer(nn.LSTM(hiddenSize, hiddenSize, rho)))
+model:add(nn.Sequencer(nn.FastLSTM(hiddenSize, hiddenSize, rho)))
 model:add(nn.Sequencer(nn.Linear(hiddenSize, nIndex)))
 model:add(nn.Sequencer(nn.LogSoftMax()))
 criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
