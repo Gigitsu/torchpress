@@ -9,26 +9,10 @@ outputSize = 1
 
 seriesSize = 10000
 
-
-function gradientUpgrade(model, x, y, criterion, learningRate, i)
-	local prediction = model:forward(x)
-	local err = criterion:forward(prediction, y)
-   if i % 100 == 0 then
-      print('error for iteration ' .. i  .. ' is ' .. err/rho)
-   end
-	local gradOutputs = criterion:backward(prediction, y)
-	model:backward(x, gradOutputs)
-	model:updateParameters(learningRate)
-   model:zeroGradParameters()
-end
-
 model = nn.Sequential()
-model:add(nn.Identity())
 model:add(nn.FastLSTM(inputSize, hiddenSize, rho))
 model:add(nn.Linear(hiddenSize, outputSize))
-
 criterion = nn.MSECriterion()
-
 
 -- dummy dataset (task predict the next item)
 dataset = torch.randn(seriesSize, inputSize)
@@ -91,7 +75,6 @@ sgd_params = {
    momentum = 0
 }
 
-lr = 0.1
 for i = 1, 10e3 do
 	-- train a mini_batch of batchSize in parallel
 	_, fs = optim.sgd(feval,x, sgd_params)

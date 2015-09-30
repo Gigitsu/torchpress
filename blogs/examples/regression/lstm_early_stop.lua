@@ -1,5 +1,6 @@
 require 'rnn'
 require 'optim'
+require('mobdebug').start()
 
 batchSize = 50
 rho = 10
@@ -48,6 +49,7 @@ end
 
 -- get weights and loss wrt weights from the model
 x, dl_dx = model:getParameters()
+updateInterval = rho - 1
 
 -- In the following code, we define a closure, feval, which computes
 -- the value of the loss function at a given point x, and the gradient of
@@ -76,15 +78,18 @@ end
 
 --function for validation
 validate = function(data)
-	local maxPosition = data:size()[1] - 1
-   local cumulatedError = 0
-	for i = 1, maxPosition do
-			local x = data[i]
-			local y = torch.DoubleTensor{data[i+1][4]}
-	      local prediction = model:forward(x)
-	      local err = criterion:forward(prediction, y)
-	      cumulatedError = cumulatedError + err
+  model:evaluate()
+  local maxPosition = data:size()[1] - 1
+  local cumulatedError = 0
+  for i = 1, maxPosition do
+    model:forget()
+		local x = data[i]
+		local y = torch.DoubleTensor{data[i+1][4]}
+      local prediction = model:forward(x)
+      local err = criterion:forward(prediction, y)
+      cumulatedError = cumulatedError + err
 	end
+   model:training()
 	return cumulatedError / maxPosition
 end
 
@@ -96,13 +101,21 @@ sgd_params = {
 }
 
 lr = 0.1
-for i = 1, 10e3 do
+for i = 1, 10e4 do
 	-- train a mini_batch of batchSize in parallel
 	_, fs = optim.sgd(feval,x, sgd_params)
 
+
+   if i % updateInterval == 0 then
+      -- backpropagates through time (BPTT) :
+      -- 1. backward through feedback and input layers,
+      -- 2. updates parameters
+      model:backwardThroughTime()
+   end
+
 	if sgd_params.evalCounter % 100 == 0 then
 		print('error for iteration ' .. sgd_params.evalCounter  .. ' is ' .. fs[1] / rho)
-		-- local validationError = validate(evalset)
-		-- print('error on validation ' .. validationError)
+		local validationError = validate(evalset)
+		print('error on validation ' .. validationError)
 	end
 end

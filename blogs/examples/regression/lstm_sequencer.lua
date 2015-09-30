@@ -1,10 +1,11 @@
 require 'rnn'
 
-batchSize = 10
-rho = 5
+batchSize = 50
+rho = 6
 hiddenSize = 64
 inputSize = 4
 outputSize = 1
+require('mobdebug').start()
 
 seriesSize = 10000
 
@@ -22,7 +23,7 @@ function gradientUpgrade(model, x, y, criterion, learningRate, i)
 end
 
 model = nn.Sequential()
-model:add(nn.Sequencer(nn.Identity()))
+--model:add(nn.Sequencer(nn.Identity()))
 model:add(nn.Sequencer(nn.FastLSTM(inputSize, hiddenSize, rho)))
 model:add(nn.Sequencer(nn.Linear(hiddenSize, outputSize)))
 
@@ -39,8 +40,8 @@ for i= 1, batchSize do
 end
 offsets = torch.LongTensor(offsets)
 
-lr = 0.1
-for i = 1, 10000 do
+lr = 0.001
+for i = 1, 10e5 do
    local inputs, targets = {}, {}
    for step = 1, rho do
       --get a batch of inputs
