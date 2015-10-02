@@ -19,7 +19,7 @@ y2 = torch.Tensor({-1})
 
 criterion = nn.MarginCriterion(1)
 
-for i = 1, 1000 do
+for i = 1, 10000 do
 	gradientUpgrade(model, x1, y1, criterion, 0.01)
 	gradientUpgrade(model, x2, y2, criterion, 0.01)
 end

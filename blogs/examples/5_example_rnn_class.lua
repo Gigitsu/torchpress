@@ -1,17 +1,21 @@
 require 'rnn'
 
-batchSize = 50
+batchSize = 10
 rho = 5
-hiddenSize = 64
+-- used to call the BPTT
+updateInterval = 4
+hiddenSize = 32
 nIndex = 10000
 
 -- Model
 model = nn.Sequential()
-model:add(nn.LookupTable(nIndex, hiddenSize))
-model:add(nn.FastLSTM(hiddenSize, hiddenSize, rho))
+model:add(nn.Recurrent(
+   hiddenSize, nn.LookupTable(nIndex, hiddenSize),
+   nn.Linear(hiddenSize, hiddenSize), nn.Sigmoid(),
+   rho
+))
 model:add(nn.Linear(hiddenSize, nIndex))
 model:add(nn.LogSoftMax())
-
 criterion = nn.ClassNLLCriterion()
 
 -- dummy dataset (task is to predict next item, given previous)
@@ -24,15 +28,24 @@ end
 offsets = torch.LongTensor(offsets)
 
 function gradientUpgrade(model, x, y, criterion, learningRate, i)
-   local prediction = model:forward(x)
+	local prediction = model:forward(x)
 	local err = criterion:forward(prediction, y)
+	local gradOutputs = criterion:backward(prediction, y)
+   -- the Recurrent layer is memorizing its gradOutputs (up to memSize)
+   model:backward(x, gradOutputs)
+
    if i % 100 == 0 then
       print('error for iteration ' .. i  .. ' is ' .. err/rho)
    end
-	local gradOutputs = criterion:backward(prediction, y)
-	model:backward(x, gradOutputs)
-	model:updateParameters(learningRate)
-   model:zeroGradParameters()
+
+   if i % updateInterval == 0 then
+      -- backpropagates through time (BPTT) :
+      -- 1. backward through feedback and input layers,
+      -- 2. updates parameters
+      model:backwardThroughTime()
+      model:updateParameters(learningRate)
+      model:zeroGradParameters()
+   end
 end
 
 

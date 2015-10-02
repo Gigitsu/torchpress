@@ -8,10 +8,11 @@ inputSize = 4
 outputSize = 1
 
 seriesSize = 10000
-
+evalSize = 1000
 
 model = nn.Sequential()
-model:add(nn.Sequencer(nn.FastLSTM(inputSize, hiddenSize, rho)))
+model:add(nn.Sequencer(nn.Linear(inputSize, hiddenSize)))
+model:add(nn.Sequencer(nn.FastLSTM(hiddenSize, hiddenSize, rho)))
 model:add(nn.Sequencer(nn.Linear(hiddenSize, outputSize)))
 
 criterion = nn.SequencerCriterion(nn.MSECriterion())
@@ -68,6 +69,23 @@ feval = function(x_new)
 	return loss_x, dl_dx
 end
 
+-- eval dataset
+evalset = torch.randn(evalSize, inputSize)
+
+validate = function()
+   model:evaluate()
+   local cumulatedError = 0
+   for j = 1, (evalSize - 1) do
+      local x = evalset[j]
+      local y = torch.DoubleTensor{evalset[j][inputSize]}
+      local prediction = model:forward({x})
+      local err = criterion:forward(prediction, {y})
+      cumulatedError = cumulatedError + err
+   end
+   model:training()
+   return cumulatedError / (evalSize - 1)
+end
+
 sgd_params = {
    learningRate = 1e-2,
    learningRateDecay = 1e-4,
@@ -76,18 +94,20 @@ sgd_params = {
 }
 
 
-for i = 1, 10e5 do
+for i = 1, 10e4 do
    -- train a mini_batch of batchSize in parallel
 	 _, fs = optim.sgd(feval,x, sgd_params)
 
-	if sgd_params.evalCounter % 100 == 0 then
-		print('error for iteration ' .. sgd_params.evalCounter  .. ' is ' .. fs[1] / rho)
-    
-    local x = dataset[10]
-    local y = torch.DoubleTensor{dataset[11][4]}
-    
-    local prediction = model:forward({x})
-    local err = criterion:forward(prediction, {y})
-    print(err)
-	end
+	-- if sgd_params.evalCounter % 500 == 0 then
+	-- 	print('error for iteration ' .. sgd_params.evalCounter  .. ' is ' .. fs[1] / rho)
+	-- end
+
+   if sgd_params.evalCounter % 200 == 0 then
+      local trainingError = fs[1] / rho
+      local validationError = validate() / rho
+
+      print('error for iteration ' .. sgd_params.evalCounter  .. ' training is ' .. trainingError)
+      print('error for iteration ' .. sgd_params.evalCounter  .. ' validation is ' .. validationError)
+
+   end
 end

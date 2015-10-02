@@ -1,13 +1,9 @@
 require 'rnn'
 
-batchSize = 50
-rho = 6
+batchSize = 10
+rho = 5
 hiddenSize = 64
-inputSize = 4
-outputSize = 1
-require('mobdebug').start()
-
-seriesSize = 10000
+nIndex = 10000
 
 
 function gradientUpgrade(model, x, y, criterion, learningRate, i)
@@ -22,16 +18,19 @@ function gradientUpgrade(model, x, y, criterion, learningRate, i)
    model:zeroGradParameters()
 end
 
+-- Model
 model = nn.Sequential()
---model:add(nn.Sequencer(nn.Identity()))
-model:add(nn.Sequencer(nn.FastLSTM(inputSize, hiddenSize, rho)))
-model:add(nn.Sequencer(nn.Linear(hiddenSize, outputSize)))
+model:add(nn.Sequencer(nn.LookupTable(nIndex, hiddenSize)))
+model:add(nn.Sequencer(nn.FastLSTM(hiddenSize, hiddenSize, rho)))
+model:add(nn.Sequencer(nn.Linear(hiddenSize, nIndex)))
+model:add(nn.Sequencer(nn.LogSoftMax()))
 
-criterion = nn.SequencerCriterion(nn.MSECriterion())
+criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
 
 
 -- dummy dataset (task predict the next item)
-dataset = torch.randn(seriesSize, inputSize)
+dataset = torch.randperm(nIndex)
+-- this dataset represent a random permutation of a sequence between 1 and nIndex
 
 -- define the index of the batch elements
 offsets = {}
@@ -40,8 +39,8 @@ for i= 1, batchSize do
 end
 offsets = torch.LongTensor(offsets)
 
-lr = 0.001
-for i = 1, 10e5 do
+lr = 0.1
+for i = 1, 10e4 do
    local inputs, targets = {}, {}
    for step = 1, rho do
       --get a batch of inputs
@@ -49,12 +48,13 @@ for i = 1, 10e5 do
       -- shift of one batch indexes
       offsets:add(1)
       for j=1,batchSize do
-         if offsets[j] > seriesSize then
+         if offsets[j] > nIndex then
             offsets[j] = 1
          end
       end
       -- a batch of targets
-      table.insert(targets, dataset[{{},1}]:index(1,offsets))
+      table.insert(targets, dataset:index(1, offsets))
    end
+
    gradientUpgrade(model, inputs, targets, criterion, lr, i)
 end

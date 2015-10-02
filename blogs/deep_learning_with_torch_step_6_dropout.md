@@ -3,13 +3,13 @@ The Long way of Deep Learning with Torch: part 6
 **Abstract:** In this post we analyze how to implement **Dropout**.
 
 ## Dropout
-Deep neural nets with a large number of parameters are very powerful machine learning systems. However, overfitting is a serious problem in such networks. Large networks are also slow to use, making it difficult to deal with overfitting by combining the predictions of many different large neural nets at
+Deep neural nets with a large number of parameters are a powerful machine learning systems. However, overfitting is a serious problem in network with a high number of parameters to optimize. Large networks are also slow to use, making it difficult to deal with overfitting by combining the predictions of many different large neural nets at
 test time. Dropout is a technique for addressing this problem.
 
-The key idea is to randomly drop units (along with their connections) from the neural network during training. It does so by “dropping out” some unit activations in a given layer, that is setting them to zero. This prevents units from co-adapting too much. 
+The key idea is to randomly drop units (along with their connections) from the neural network during training. It does so by “dropping out” some unit activations in a given layer, that is setting them to zero. This prevents units from co-adapting too much.
 
-- **During training**, dropout samples from an exponential number of different “thinned” networks. 
-- **At test time**, it is easy to approximate the effect of averaging the predictions of all these thinned networks by simply using a single unthinned network that has smaller weights. 
+- **During training**, dropout samples from an exponential number of different “thinned” networks.
+- **At test time**, it is easy to approximate the effect of averaging the predictions of all these thinned networks by simply using a single unthinned network that has smaller weights.
 
 This significantly reduces overfitting and gives major improvements over other regularization methods.
 
@@ -34,19 +34,18 @@ module = nn.Dropout()
 
 ```
 
-Furthermore, the ouputs are scaled by a factor of 1/(1-p) during training.
+Furthermore, the ouputs are scaled by a factor of `1/(1-p)` during training.
 
 ### Using Dropout in Model Building
-
-It can be used as layer between each layer of a model.
+Using Dropout in network definition is simple as adding a layer to a Sequential Model. Dropout Modules can be used as layer between each layer of a model.
 
 ```lua
 
 model = nn.Sequential()
 model:add(nn.Linear(10, 25))
 model:add(nn.Dropout())
-model:add(nn.Tanh()) 
+model:add(nn.Tanh())
 model:add(nn.Linear(25, 1))
 ```
 
-Here we added a Dropout between the two linear models.
+Here we added a Dropout between the two linear models with mixed with a non linear `Tanh`.

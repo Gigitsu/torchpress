@@ -2,9 +2,11 @@ The Long way of Deep Learning with Torch: part 2
 ============
 **Abstract:** In this post we analyze how to build complex neural networks using the container classes.
 
+-------------------------------
+
 [Containers](https://github.com/torch/nn/blob/master/doc/containers.md#nn.Containers) such as [Module](https://github.com/torch/nn/blob/master/doc/module.md#nn.Module) is an abstract class that defines the main functions that must be inherited from concrete classes.
 
-The main functions of Container are:
+The main functions of `Container` are:
 
 1. add(module): add a Module to the given container
 2. get(index): get the module at index
@@ -14,7 +16,7 @@ The main functions of Container are:
 
 ### Sequential
 
-Sequential provides a means to plug layers together in a feed-forward fully connected manner.
+Sequential provides a way to plug layers together in a feed-forward fully connected manner.
 
 ```lua
 
@@ -34,11 +36,11 @@ which gives as output
 [torch.Tensor of dimension 1]
 ```
 
-Moreover this container offers method to insert a module at index and remove a module at index.
+Moreover this container offers a method to `insert` a module at `index` and `remove` a module at `index`.
 
 ### Parallel
 
-Create a container that allows to train in parallel different layers. For example we can define a model composed of two parallel layers with the same input size. Their output is concatenated together.
+It creates a container that allows to train in parallel different layers. For example we can define a model composed of two parallel layers with the same input size. Their output is concatenated together.
 
 ```lua
 model = nn.Parallel(2,1)
@@ -47,7 +49,7 @@ model:add(nn.Linear(10,2))
 print(model:forward(torch.randn(10,2)))
 ```
 
-gives as output a Tensor 5x1
+gives as output a Tensor `5x1`
 
 ### Concat
 

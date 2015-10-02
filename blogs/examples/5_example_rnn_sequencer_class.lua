@@ -2,14 +2,11 @@ require 'rnn'
 
 batchSize = 50
 rho = 5
-hiddenSize = 64
+hiddenSize = 12
 nIndex = 10000
 
 
 function gradientUpgrade(model, x, y, criterion, learningRate, i)
-	print(x)
-	print(y)
-	os.exit()
 	local prediction = model:forward(x)
 	local err = criterion:forward(prediction, y)
    if i % 100 == 0 then

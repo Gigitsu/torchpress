@@ -1,10 +1,10 @@
 The Long way of Deep Learning with Torch: part 1
 ============
-**Abstract:** In this post we analyze the first step to build a Deep Neural Network using [torch](http://torch.ch/). In particular, we focus on [torch/nn module](torch/nn](https://github.com/torch/nn).
+**Abstract:** In this post we analyze the first step to build a Deep Neural Network using [torch](http://torch.ch/). In particular, we focus on [torch/nn module](https://github.com/torch/nn).
 
+---------------------------
 
-
-Module in [torch/nn](https://github.com/torch/nn) is an abstract class that includes the fundamental method necessary to define a Layer of a neural network.
+The class Module in [torch/nn](https://github.com/torch/nn) is an abstract class that includes the methods necessary to define Layers in neural networks.
 
 Module has two state variable as describe in its `_init()` function.
 
@@ -15,15 +15,15 @@ function Module:__init()
 end
 ```
 
-An the methods to:
+And the methods:
 
-1. forward(input): takes an input object, and computes the corresponding output of the module.
-2. backward(input, gradOutput): performs a backpropagation step through the module with respect to the given input. 
-3. All the other function are defined in the [documentation](https://github.com/torch/nn/blob/master/doc/module.md#nn.Module)
+1. to **forward(input)** an input object, and computes the corresponding output of the module.
+2. to performs a backpropagation step through the module with respect to the given input (**backward(input, gradOutput)**).
+3. All the other methods can be checked from the main [documentation](https://github.com/torch/nn/blob/master/doc/module.md#nn.Module)
 
 ## Module Implementations
 
-The abstract class Module is extended in several [Layers](https://github.com/torch/nn/blob/master/doc/simple.md#nn.simplelayers.dok). To describe the main functions provided by `Module` let us consider some Layers Implementations.
+`Module` is then extended by several [Layers](https://github.com/torch/nn/blob/master/doc/simple.md#nn.simplelayers.dok). To describe the main functions provided by `Module` let us consider some Layers Implementations.
 
 ### Linear
 
@@ -37,12 +37,12 @@ module = nn.Linear(10,5)
 model = nn.Sequential()
 model:add(module)
 
--- weights and biases 
+-- weights and biases
 print(module.weight)
 print(module.bias)
 
 -- the gradient
-print(module.gradWeight) 
+print(module.gradWeight)
 print(module.gradBias)
 ```
 
@@ -58,9 +58,7 @@ print(module.gradBias)
 	```lua
 	gradInput = model:backward(x, y)
 	```
-	This function simply performs this task using two function calls:
-	- A function call to updateGradInput(input, gradOutput).
-	- A function call to accGradParameters(input,gradOutput,scale).
+	This function simply performs this task using two function calls to`updateGradInput(input, gradOutput)` and `accGradParameters(input,gradOutput,scale)`.
 
 
 ### Identity
@@ -89,4 +87,3 @@ Moreover, it offers layers to perform:
 The other operations are described in the [documentation](https://github.com/torch/nn/blob/master/doc/simple.md#nn.Max)
 
 In the next series we will describe how to use Layers combined with [Containers](https://github.com/torch/nn/blob/master/doc/containers.md#nn.Containers)
-
